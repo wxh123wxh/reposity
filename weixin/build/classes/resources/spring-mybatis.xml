@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context" 
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" 
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context-4.0.xsd
+	http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop-4.0.xsd 
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+	http://www.springframework.org/schema/util 
+	http://www.springframework.org/schema/util/spring-util-4.0.xsd">
+	
+	<!-- 加载配置文件 -->
+    <context:property-placeholder location="classpath:resources/jdbc.properties" />
+    <!-- 数据源，使用 c3p0 -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${jdbc.driver}"></property>
+        <property name="jdbcUrl" value="${jdbc.url}"></property>
+        <property name="user" value="${jdbc.username}"></property>
+        <property name="password" value="${jdbc.password}"></property>
+        <!-- 连接池保留的最小连接数 -->
+        <property name="minPoolSize" value="10"/>
+        <!-- 连接池中保留的最大连接数。Default: 15 -->
+        <property name="maxPoolSize" value="100"/>
+        <!-- 最大空闲时间,1800秒内未使用则连接被丢弃。若为0则永不丢弃。Default: 0 -->
+        <property name="maxIdleTime" value="1800"/>
+        <!-- 当连接池中的连接耗尽的时候c3p0一次同时获取的连接数。Default: 3 -->
+        <property name="acquireIncrement" value="5"/>
+        <property name="maxStatements" value="1000"/>
+        <property name="initialPoolSize" value="10"/>
+        <!--每60秒检查所有连接池中的空闲连接。Default: 0  -->
+        <property name="idleConnectionTestPeriod" value="60"/>
+        <!-- 定义在从数据库获取新连接失败后重复尝试的次数。Default: 30 -->
+        <property name="acquireRetryAttempts" value="30"/>
+        <property name="breakAfterAcquireFailure" value="true"/>
+        <property name="testConnectionOnCheckout" value="false"/>
+    </bean>
+	
+	<!-- 配置 Mybatis的工厂 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!-- 数据源 -->
+		<property name="dataSource" ref="dataSource" />
+		<!-- 配置Mybatis的核心 配置文件所在位置 -->
+		<property name="configLocation" value="classpath:resources/mybatis.xml" />
+	</bean>
+
+	<!-- 配置 1：原始Dao开发 接口实现类 Mapper.xml 三个 2：接口开发 接口 不写实现类 Mapper.xml 二个 （UserDao、ProductDao 
+		、BrandDao。。。。。。。） 3：接口开发、并支持扫描 cn.itcast.core.dao(UserDao。。。。。） 写在此包下即可被扫描到 -->
+	<bean  class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+		<property name="basePackage" value="com.wx.dao" />
+	</bean>
+
+	<!-- springmvc提供的简单异常处理器 -->
+	<bean class="com.wx.exception.CustomExceptionResolver"></bean>
+	
+	<!-- 设置返回给ajax请求的String类型的json数据编码 -->
+	<!-- <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+       <property name="messageConverters"> 
+       <list> 
+           <bean 
+               class="org.springframework.http.converter.StringHttpMessageConverter"> 
+               <property name="supportedMediaTypes"> 
+                   <list> 
+                       <bean class="org.springframework.http.MediaType"> 
+                           <constructor-arg index="0" value="text" /> 
+                           <constructor-arg index="1" value="plain" /> 
+                           <constructor-arg index="2" value="UTF-8" /> 
+                       </bean> 
+                   </list> 
+               </property> 
+           </bean> 
+       </list> 
+   </property> 
+   </bean> -->
+   
+   <!-- 支持返回json（避免IE在ajax请求时，返回json出现下载），@responseBody-（数据绑定）-messageConverters -->
+     <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+        <property name="messageConverters">
+            <list>
+                <ref bean="mappingJacksonHttpMessageConverter"/>
+            </list>
+        </property>
+    </bean>   
+
+    <!-- 前端Json转换器 -->
+    <bean id="mappingJacksonHttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+        <property name="supportedMediaTypes">
+            <list>  
+            <bean class="org.springframework.http.MediaType">  
+             <constructor-arg index="0" value="text"/>  
+             <constructor-arg index="1" value="plain"/>  
+             <constructor-arg index="2" value="UTF-8"/>  
+            </bean>  
+            <bean class="org.springframework.http.MediaType">  
+             <constructor-arg index="0" value="*"/>  
+             <constructor-arg index="1" value="*"/>  
+             <constructor-arg index="2" value="UTF-8"/>  
+            </bean>  
+            <bean class="org.springframework.http.MediaType">  
+             <constructor-arg index="0" value="text"/>  
+             <constructor-arg index="1" value="*"/>  
+             <constructor-arg index="2" value="UTF-8"/>  
+            </bean>  
+             <bean class="org.springframework.http.MediaType">  
+             <constructor-arg index="0" value="application"/>  
+             <constructor-arg index="1" value="json"/>  
+             <constructor-arg index="2" value="UTF-8"/>  
+            </bean>  
+          </list>  
+        </property>
+    </bean>   
+    
+	<bean id="springContextUtil" class="com.wx.utils.SpringContextUtil"></bean>
+	<bean class="com.wx.utils.SpringTool"/>
+	
+</beans>

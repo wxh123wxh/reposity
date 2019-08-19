@@ -1,0 +1,520 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wx.dao.ServletDao">
+	<!-- findInfoByOpenId方法 -->
+	<resultMap type="Open" id="map">
+		<result column="managerId" property="openId" />
+		<result column="nickname" property="nickname" />
+		<result column="style" property="style" />
+		<collection property="maxc_id_list" column="id" javaType="java.util.List" ofType="java.lang.String"/>
+	</resultMap>
+	
+	<resultMap type="Follower" id="map2">
+		<id column="id" property="id"/>
+		<result column="openId" property="openId"/>
+		<result column="MAXC_id" property="MAXC_id"/>
+	</resultMap>
+	
+	<resultMap type="Sub_Equipment" id="map3">
+		<id column="id" property="id"/>
+		<result column="sub_id" property="sub_id"/>
+		<result column="MAXC_id" property="MAXC_id"/>
+		<result column="arming_status" property="arming_status"/>
+		<result column="online" property="online"/>
+		<result column="password" property="password"/>
+		<result column="Alarm" property="Alarm"/>
+		<result column="Tamper" property="Tamper"/>
+		<result column="DC" property="DC"/>
+		<result column="AC" property="AC"/>
+		<result column="name" property="name"/>
+		<collection property="seList" column="id" javaType="java.util.List" ofType="Sector" select="findAll6"/>
+	</resultMap>
+	
+	<resultMap type="ArmingLog" id="map4">
+		<id column="id" property="id"/>
+		<result column="MAXC_id" property="MAXC_id"/>
+		<result column="sub_id" property="sub_id"/>
+		<result column="time" property="time"/>
+		<result column="content" property="content"/>
+	</resultMap>
+	
+	<resultMap type="OperateLog" id="map5">
+		<id column="id" property="id"/>
+		<result column="MAXC_id" property="MAXC_id"/>
+		<result column="sub_id" property="sub_id"/>
+		<result column="openId" property="openId"/>
+		<result column="time" property="time"/>
+		<result column="content" property="content"/>
+	</resultMap>
+	
+	<resultMap type="Sector" id="map6">
+		<id column="id" property="id"/>
+		<result column="sub_id" property="sub_id"/>
+		<result column="sec_id" property="sec_id"/>
+		<result column="arming_status" property="arming_status"/>
+		<result column="online" property="online"/>
+		<result column="Alarm" property="Alarm"/>
+		<result column="Tamper" property="Tamper"/>
+		<result column="DC" property="DC"/>
+		<result column="AC" property="AC"/>
+		<result column="name" property="name"/>
+	</resultMap>
+	<!-- 对equipment的操作  -->
+	<select id="findAllDevices" resultType="Equipment">
+		select id,name,overtime from equipment limit #{start},10
+	</select>
+	<select id="getNames" resultType="Name">
+		select e.name as name, s.name as sub_name from equipment e,sub_equipment s where e.id=#{maxc_id} and s.maxc_id = e.id and s.sub_id = #{sub_id} 
+	</select>
+	<select id="getNames2" resultType="Name">
+		select e.name as name, s.name as sub_name,ss.name as sec_name from equipment e,sub_equipment s,sector ss where e.id=#{maxc_id} and s.maxc_id = e.id and s.sub_id = #{sub_id} and ss.sub_id=s.id and ss.sec_id=#{sec_id};
+	</select>
+	<resultMap type="Equipment" id="equi_map">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="one_arming" property="one_arming"/>
+		<result column="one_broken" property="one_broken"/>
+		<collection property="list" column="id" javaType="java.util.List" ofType="Sub_Equipment" select="equitFindALL"/>
+	</resultMap>
+	<select id="getEquipmentAll"  resultMap="equi_map" >
+		select id,name,one_arming,one_broken from (select id,name from equipment where id
+		in
+		<foreach collection="list" item="maxc_id" index="index"
+            open="(" close=")" separator=",">
+            #{maxc_id}
+        </foreach>
+        ) as e left join (select maxc_id, one_broken,one_arming from setOperate where openId = #{openId} and sub_id = 0) as s
+		on s.maxc_id = e.id
+	</select>
+	<select id="getDeviceOnline" parameterType="java.lang.String" resultType="Equipment">
+		select name,online,overtime from equipment where id = #{maxc_id};
+	</select>
+ 	<update id="changeDeviceOnline">
+ 		update equipment set online = #{online} where id = #{maxc_id}
+ 	</update>
+ 	<update id="chageOverTime">
+ 		update equipment set overtime = #{overtime} where id = #{id}
+ 	</update>
+	<select id="findInfoByOpenId" resultMap="map">
+		select id,managerId,nickname, 1 as style from equipment where managerId = #{openId}
+	</select>
+	
+	<delete id="deleteDevice" parameterType="java.lang.String">
+		delete from equipment where id = #{id}
+	</delete>
+	
+	<update id="updateDevice">
+		update equipment set name = #{name} where id = #{id}
+	</update>
+	<update id="updataNckname">
+		update equipment set nickname = #{nickname} where managerId = #{managerId}
+	</update>
+	
+	<select id="findDevice" parameterType="java.lang.String" resultType="java.lang.String">
+		select id from equipment where id = #{id}
+	</select>
+	
+	<insert id="addDevice" parameterType="Equipment">
+		insert into equipment (id,managerId,name,nickname,online) values (#{id},#{managerId},#{name},#{nickname},1)
+	</insert>
+	
+	<select id="findAllMaxc_id" resultType="java.lang.String">
+		select id from equipment 
+	</select>
+	
+	<select id="getEquipment"  resultType="Equipment">
+		select id,managerId,name,online,nickname,one_broken,one_arming from (select id,managerId,name,online,nickname from equipment where id in
+		<foreach collection="list" item="maxc_id" index="index"
+            open="(" close=")" separator=",">
+            #{maxc_id}
+        </foreach>
+		) as e left join (select maxc_id,one_broken,one_arming from setOperate where openId = #{openId} and sub_id = 0) as s
+		on s.maxc_id = e.id limit #{start},10
+	</select>
+	<select id="getEquipment3"  resultType="Equipment">
+		select id,managerId,name,online,nickname from equipment where id in
+		<foreach collection="list" item="maxc_id" index="index"
+            open="(" close=")" separator=",">
+            #{maxc_id}
+        </foreach>
+        and managerId = #{glid} limit #{start},10
+	</select>
+	
+	<select id="getEquipment5"  resultType="Equipment">
+		select id,name from equipment where id in
+		<foreach collection="list" item="maxc_id" index="index"
+            open="(" close=")" separator=",">
+            #{maxc_id}
+        </foreach>
+        limit #{start},10
+	</select>
+	
+	<select id="getEquipmentByName"  resultType="Equipment">
+		select id,name from equipment where id in
+		<foreach collection="list" item="maxc_id" index="index"
+            open="(" close=")" separator=",">
+            #{maxc_id}
+        </foreach>
+        and name = #{name}
+	</select>
+	
+	<select id="findManagerByMaxc_id" parameterType="java.lang.String" resultType="java.lang.String">
+		select managerid from equipment where id = #{MAXC_id}
+	</select>
+	<select id="getAllOpenId1"  resultType="java.util.List" >
+		select distinct managerId from equipment
+	</select>
+	
+	<!-- 对sub_equipment的操作  -->
+	<update id="changeSubDeviceOnline">
+ 		update sub_equipment set online = #{online} where maxc_id = #{maxc_id}
+ 	</update>
+	
+	<select id="getSubState" resultType="Sub_Equipment">
+		select id,arming_status,online,Alarm,DC,AC,Tamper,name from sub_equipment where MAXC_id = #{maxc_id} and sub_id = #{sub_id};
+	</select>
+ 	<update id="updateSubState">
+ 		update sub_equipment set ${state} = #{value} where id = #{id}
+ 	</update>
+	<select id="findSub128"  resultType="Sub_Equipment" >
+		select id, sub_id,name,password from sub_equipment where MAXC_id = #{id} and sub_id = 128
+	</select>
+	<select id="findSub0"  resultType="Sub_Equipment" >
+		select id, sub_id,name,password from sub_equipment where MAXC_id = #{id} and sub_id = 0
+	</select>
+	<select id="equitFindALL"  resultMap="sub_map" >
+		select id, sub_id,name,password from sub_equipment where MAXC_id = #{id}
+	</select>
+	<resultMap type="Sub_Equipment" id="sub_map">
+		<id column="id" property="id"/>
+		<result column="sub_id" property="sub_id"/>
+		<result column="password" property="password"/>
+		<result column="name" property="name"/>
+	</resultMap>
+	<insert id="addSub_DeviceAll2">
+		insert into sub_equipment (sub_id,MAXC_id,name,password,online) 
+		values 
+		<foreach collection="array" item="item" index="index" separator=","> 
+        	(#{item},#{MAXC_id},'${item}',"123456",1) 
+    	</foreach>
+	</insert>
+	
+	<delete id="deleteSub_Device" parameterType="java.lang.Long">
+		delete from sub_equipment where id = #{id}
+	</delete>
+	
+	<update id="updateSub_Device" parameterType="Sub_Equipment">
+		update sub_equipment set password = #{password},name = #{name} where id= #{id}
+	</update>
+	
+	<insert id="addSub_Device" parameterType="Sub_Equipment">
+		insert into sub_equipment (sub_id,MAXC_id,password,name,online) values (#{sub_id},#{MAXC_id},#{password},#{name},1)
+	</insert>
+	
+	<select id="findWetherSub_Device" resultType="Sub_Equipment">
+		select * from sub_equipment limit 1
+	</select>	
+	<select id="getAllSubEquipment"  resultType="Sub_Equipment"  parameterType="java.lang.String">
+		select e.*,one_arming,one_broken from (select * from sub_equipment where MAXC_id = #{maxc_id}) as e left join 
+		(select sub_id, one_broken,one_arming from setOperate where openId = #{openId} and MAXC_id = #{maxc_id}) as s on s.sub_id = e.id
+	</select>
+	<select id="getAllSubEquipmentId"  resultType="java.lang.Long">
+		select id from sub_equipment where MAXC_id in
+		<foreach collection="list" item="maxc_id" index="index"
+            open="(" close=")" separator=",">
+            #{maxc_id}
+        </foreach>
+	</select>
+	<select id="getAllSubEquipment4"  resultType="java.lang.Long"  parameterType="java.lang.String">
+		select id from sub_equipment where MAXC_id = #{maxc_id}
+	</select>
+	<select id="getAllSubEquipment3"  resultType="Sub_Equipment">
+		select e.*,one_arming,one_broken from (select * from sub_equipment where MAXC_id = #{maxc_id}) as e left join
+		(select sub_id, one_arming,one_broken from setOperate where openId = #{openId} and maxc_id = #{maxc_id}) as s on e.id = s.sub_id
+		limit #{start},10
+	</select>
+	<select id="getSubEquipment"  resultType="Sub_Equipment"  parameterType="java.lang.Long">
+		select * from sub_equipment where id = #{id} 
+	</select>
+	<select id="getSubEquipmentByNameOrSub_id"  resultType="Sub_Equipment">
+		select * from sub_equipment where name = #{name}
+	    	<if test="sub_id != -1">
+	        	or sub_id = #{sub_id}
+	    	</if>
+	</select>
+	<select id="getId"  resultType="java.lang.Long">
+		select id from sub_equipment where  maxc_id = #{maxc_id} and sub_id = #{sub_id}
+	</select>
+	
+	<!-- 对follower的操作  -->
+	<select id="findAllFollowerByMaxc_id" parameterType="java.lang.String" resultType="java.lang.String">
+		select openid from follower where maxc_id = #{MAXC_id}
+	</select>
+	<select id="findAllFollowerByMaxc_id2" resultType="java.lang.String">
+		select openid from follower where maxc_id in
+		<foreach collection="list" item="maxc_id" index="index"
+            open="(" close=")" separator=",">
+            #{maxc_id}
+        </foreach>
+	</select>
+	<insert id="addFolowerForDevice">
+		insert into follower (MAXC_id,openId,nickname,headimgurl,city) values 
+		<foreach collection="id" item="item" index="index" separator=","> 
+        	(#{item},#{gzid},#{nickname},#{headimgurl},#{city}) 
+    	</foreach>
+	</insert>
+	<update id="updateFolowerNickname">
+		update follower set nickname = #{nickname} where openId= #{openId}
+	</update>
+	
+	<resultMap type="Open" id="mapid">
+		<result column="openId" property="openId"/>
+		<result column="nickname" property="nickname"/>
+		<result column="style" property="style"/>
+		<collection property="maxc_id_list" column="MAXC_id" javaType="java.util.List" ofType="java.lang.String"/>
+	</resultMap>
+	
+	<select id="findidByOpenId" resultMap="mapid" parameterType="java.lang.String">
+		select MAXC_id,openId,nickname,0 as style from follower where openId = #{openId}
+	</select>
+	
+	<delete id="deleteDeviceForFollower">
+		delete from follower where MAXC_id = #{id} and openId = #{openId}
+	</delete>
+	<delete id="deleteFollower">
+		delete from follower where openId = #{openId} and MAXC_id in
+		<foreach collection="list" item="maxc_id" index="index"
+            open="(" close=")" separator=",">
+            #{maxc_id}
+        </foreach>
+	</delete>
+	<delete id="deleteFollower3">
+		delete from follower where openId = #{openId}
+	</delete>
+	<select id="getAllFollower"  resultType="Follower">
+		select * from follower where MAXC_id in
+		<foreach collection="list" item="maxc_id" index="index"
+            open="(" close=")" separator=",">
+            #{maxc_id}
+        </foreach>
+        group by openId limit #{start},10
+	</select>
+	<select id="getAllOpenId2"  resultType="java.util.List" >
+		select distinct openId from follower
+	</select>
+	
+	<!-- 对sector的操作  -->
+	<select id="getSectorState" resultType="Sector">
+		select s.id,s.arming_status,s.online,s.Alarm,s.DC,s.AC,s.Tamper,s.name,e.name as sub_name from sector s,sub_equipment e where e.maxc_id= #{maxc_id} and e.sub_id = #{sub_id} and s.sub_id = e.id and s.sec_id= #{sec_id}
+	</select>
+	<update id="updateSectorState">
+		update sector set ${state} = #{value} where id= #{id}
+	</update>
+	<delete id="deleteSector" parameterType="java.lang.Long">
+		delete from sector where id = #{id}
+	</delete>
+	
+	<update id="updateSector" parameterType="Sector">
+		update sector set name = #{name} where id= #{id}
+	</update>
+	
+	<insert id="addSector" parameterType="Sector">
+		insert into sector (sec_id,sub_id,name,online) values (#{sec_id},#{sub_id},#{name},1)
+	</insert>
+	<insert id="addSectorAll2">
+		insert into sector (sec_id,sub_id,name,online) 
+		values 
+		<foreach collection="list" item="item1" separator="," >
+	    <foreach collection="array2" item="item2" index="priceIndex" separator=",">
+	       (
+	         #{item2},#{item1},'${item2}',1
+	       )
+	    </foreach>
+       </foreach>
+	</insert>
+	<resultMap type="Sector" id="mapSector">
+		<id column="id" property="id"/>
+		<result column="sec_id" property="sec_id"/>
+	</resultMap>
+	<select id="getAllSector2" resultType="Sector">
+		select s.*,e.maxc_id,e.password from sector s,sub_equipment e where s.sub_id = #{id} and e.id = s.sub_id
+	</select>
+	
+	<select id="getSectorById" resultType="Sector">
+		select * from sector where id = #{id}
+	</select>
+	<update id="changeSectorOnline">
+ 		update sector set online = #{online} where sub_id in
+ 		<foreach collection="list" item="maxc_id" index="index"
+            open="(" close=")" separator=",">
+            #{maxc_id}
+        </foreach>
+ 	</update>
+	
+	<!-- 对log的操作 -->
+	<select id="findLogCount" parameterType="java.lang.String" resultType="java.lang.Integer">
+		select count(*) number from log where maxc_id = #{MAXC_id}
+	</select>
+	
+	<delete id="deleteLog" parameterType="java.lang.String">
+		delete from log where maxc_id = #{MAXC_id} limit 1;
+	</delete>
+	
+	<insert id="addLog" parameterType="ArmingLog">
+		insert into log (maxc_id,sub_id,time,content) values (#{MAXC_id},#{sub_id},#{time},#{content})
+	</insert>
+	<select id="getLog2"  resultType="ArmingLog">
+		select id,MAXC_id,sub_id,time,content from log where MAXC_id in
+		<foreach collection="list" item="maxc_id" index="index"
+            open="(" close=")" separator=",">
+            #{maxc_id}
+        </foreach>
+        order by time desc,id asc limit #{start},10 
+	</select>
+	
+	<select id="getArmingLog"  resultType="ArmingLog" >
+		select id,MAXC_id,sub_id,time,content from log where MAXC_id = #{maxc_id} and sub_id = #{sub_id} order by time desc,id asc  limit #{start},10
+	</select>
+	
+	<!-- 对operateLog的操作 -->
+	<select id="countOperateLog" parameterType="java.lang.String" resultType="java.lang.Integer">
+		select count(*) number from operatelog where maxc_id = #{MAXC_id}
+	</select>
+	
+	<delete id="deleteOperateLog" parameterType="java.lang.String">
+		delete from operatelog where maxc_id = #{MAXC_id} limit 1;
+	</delete>
+	<delete id="deleteOperateLog2">
+		delete from operatelog where openId = #{openId} and maxc_id in
+		<foreach collection="list" item="maxc_id" index="index"
+            open="(" close=")" separator=",">
+            #{maxc_id}
+        </foreach>
+	</delete>
+	<delete id="deleteOperateLog3">
+		delete from operatelog where openId = #{openId}
+	</delete>
+	
+	<insert id="addOperateLog" parameterType="OperateLog">
+		insert into operatelog (maxc_id,sub_id,openId,time,content,nickname) values (#{MAXC_id},#{sub_id},#{openId},#{time},#{content},#{nickname})
+	</insert>
+	<select id="getOperateLog4"  resultType="OperateLog">
+		select id,MAXC_id,sub_id,openId,time,content,nickname from operatelog where MAXC_id in
+		<foreach collection="list" item="maxc_id" index="index"
+            open="(" close=")" separator=",">
+            #{maxc_id}
+        </foreach>
+        order by time desc,id asc limit #{start},10
+	</select>
+	
+	<select id="getOperateLog3"  resultType="OperateLog" >
+		select id,MAXC_id,sub_id,openId,time,content,nickname from operatelog where MAXC_id = #{maxc_id} and sub_id = #{sub_id} order by time desc,id asc limit #{start},10
+	</select>
+	
+	<!-- 对setOperate的操作 -->
+	<select id="getOneStatus"  resultType="SetOperate" >
+		select one_arming,one_broken from setOperate where openId = #{openId} and maxc_id = #{maxc_id} and sub_id = #{id}
+	</select>
+	<insert id="addOneStatus">
+		insert into setOperate (openId,maxc_id,sub_id,one_arming,one_broken) values (#{openId},#{maxc_id},#{id},#{one_arming},#{one_broken});
+	</insert>
+	<update id="updateOneStatus">
+		update setOperate set 
+			${state} = #{value}
+		where openId= #{openId} and maxc_id = #{maxc_id} and sub_id = #{id}
+	</update>
+	<delete id="deleteOneStatus">
+		delete from setOperate where sub_id = #{id}
+	</delete>
+	<delete id="deleteSetOperateByOpenIdAndMaxc_id">
+		delete from setOperate where openId = #{openId} and maxc_id in
+		<foreach collection="list" item="maxc" index="index"
+            open="(" close=")" separator=",">
+            #{maxc}
+        </foreach>
+	</delete>
+	<delete id="deleteSetOperateByOpenId">
+		delete from setOperate where openId = #{openId}
+	</delete>
+	
+	<!-- 对rememberPassword的操作 -->
+	<select id="getrePassword" resultType="RePassword" >
+		select openId,id,remember from rememberPassword where openId = #{openId} and id = #{id}
+	</select>
+	
+	<insert id="insertRememberPassword" >
+		insert into rememberPassword (openId,id,remember) values (#{openId},#{id},#{remember})
+	</insert>
+	<update id="updateRememberPassword">
+		update rememberPassword set 
+			remember = #{remember}
+		where openId= #{openId} and id = #{id}
+	</update>
+	<delete id="deleteRememberPasswordByOpenIdAndSub_id">
+		delete from rememberPassword where openId = #{openId} and id in
+		<foreach collection="sub_ids" item="id" index="index"
+            open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+	</delete>
+	<delete id="deleteRememberPasswordByOpenId">
+		delete from rememberPassword where openId = #{openId}
+	</delete>
+	
+	<!-- 对onePassword的操作 -->
+	<update id="setPassword">
+		update onePassword set 
+			password = #{password}
+		where openId= #{openId}
+	</update>
+	<update id="updateOnePassword">
+		update onePassword set 
+			remember = #{remember}
+		where openId= #{openId}
+	</update>
+	<delete id="deleteOnePassword" parameterType="java.lang.String">
+		delete from onePassword where openId = #{openId}
+	</delete>
+	<select id="getOnePassword"  parameterType="java.lang.String" resultType="OnePassword" >
+		select openId,password,remember from onePassword where openId = #{openId}
+	</select>
+	<insert id="insertPassword" >
+		insert into onePassword (openId,password) values (#{openId},#{password})
+	</insert>
+	<insert id="insertOnePassword" >
+		insert into onePassword (openId,password,remember) values (#{openId},#{password},#{remember})
+	</insert>
+	
+	<!-- 对setMessage的操作 -->
+	<select id="getMessage"  resultType="SetMessage" >
+		select id,openId,sub_id,set_sub_arming,set_sub_statu,set_sub_alarm from setMessage where openId = #{openId} and sub_id = #{sub_id}
+	</select>
+	<select id="getMessageBySub_Id"  resultType="SetMessage" >
+		select s.id,s.openId,s.sub_id,s.set_sub_arming,s.set_sub_statu,s.set_sub_alarm from setMessage s,sub_equipment e where e.maxc_id = #{maxc_id} and e.sub_id = #{sub_id} and s.sub_id = e.id and s.openId = #{openId}
+	</select>
+	<update id="setMessage"  parameterType="SetMessage">
+		update setMessage set 
+			set_sub_arming = #{set_sub_arming},
+			set_sub_statu = #{set_sub_statu},
+			set_sub_alarm = #{set_sub_alarm}
+		where id= #{id}
+	</update>
+	<insert id="insertMessage" parameterType="SetMessage">
+		insert into setMessage (openId,sub_id,set_sub_arming,set_sub_statu,set_sub_alarm) values (#{openId},#{sub_id},#{set_sub_arming},#{set_sub_statu},#{set_sub_alarm});
+	</insert>
+	<delete id="deleteMessage">
+		delete from setMessage where openId = #{openId} and sub_id in
+		<foreach collection="list" item="id" index="index"
+            open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+	</delete>
+	<delete id="deleteMessage2">
+		delete from setMessage where openId = #{openId}
+	</delete>
+	
+	<delete id="deleteMenage" parameterType="java.lang.String">
+		delete from equipment where managerId = #{openId}
+	</delete>
+</mapper>

@@ -1,0 +1,223 @@
+*{
+	margin:0;
+	padding:0;
+	-webkit-appearance: none;
+}
+td{ 
+	text-align:center;
+	white-space: nowrap;
+	border:1px solid #000000;
+}
+table {
+	border-collapse: collapse;
+}
+div{
+	overflow-x: auto; 
+	overflow-y: hidden; 
+	height: 100%; 
+	width:100%;"
+}
+html{
+	font-size:62.5%;
+}
+body {
+	margin:0.8rem;
+	font-size:14px; 
+	font-size:1.6rem; 
+}
+.red{
+	color:red;
+}
+.blue{
+	color:#0033CC;
+}
+.yellow{
+	color:#66FF33;
+}
+.hs{
+	color:#330033;
+}
+@media screen and (max-device-width: 400px) {  .left{ float:none;} }
+p{
+	margin: 0.3rem;
+	padding-left: 0.5rem;
+}
+
+
+#log_time p{
+	float:left;
+}
+#log_content p{
+	float:left;
+}
+
+#device {
+	border: 0.1rem solid #B0B0B0 ;
+	border-radius: 0.5rem;
+	margin-top: 0.5rem;
+	background-color: #E8E8E8 ;
+}
+#device_info{
+	height:100%;
+	width:70%;
+	float: left;
+}
+
+
+#device_operate{
+	width: 30%;
+	float: right;
+	height: 100%;
+}
+#device_operate p{
+	text-align: center;
+	padding: 0;
+}
+#device_info p{
+	color:#330066 ;
+}
+#but1{
+	width:60%;
+	color:#0099CC;
+}
+#but2{
+	width:60%;
+	color:#33FF00;
+}
+#but3{
+	width:60%;
+	border:2px solid #e8e8e8;
+	color:red;
+	background-color: #E8E8E8
+}
+#butArming{
+	border:2px solid #e8e8e8;
+	width:60%;
+	color:#0099CC;
+	background-color: #E8E8E8
+}
+#device_operate img{
+	padding-right: 0.5rem;
+	vertical-align: middle;
+	height: 1.6rem;
+	width: 1.6rem;
+}
+#operateDevice button{
+	width: 98%;
+	margin-top: 0.3rem;
+	padding: 0.3rem 0 0.3rem 0;
+	background-color:#00CC33;
+  	color: #F00000;
+}
+#operateDevice p{
+  color:#0000FF;
+}
+#operateDevice{
+	border: 0.1rem solid #B0B0B0 ;
+	border-radius: 0.5rem;
+	margin-top: 0.5rem;
+	background-color: #E8E8E8 ;
+	overflow: hidden;
+	text-align: center;
+	padding-top: 0.5rem;
+}
+
+
+#xgname{
+	width:98%;
+	padding-top:0.5rem;
+	padding-bottom:0.5rem;
+	padding-left: 0.5rem;
+}
+#xgname b{
+	color:#5848ea;
+	padding-right:0.5rem;
+}
+#name{
+	border: 0.1rem solid #C8C8C8 ;
+	height: 1.6rem;
+}
+#name:hover{
+	border: 0.1rem solid red;
+}
+#xg{
+	margin-bottom:0.5rem;
+	width: 98%;
+	padding: 0.3rem 0 0.3rem 0;
+	background-color: #00CC33;
+	color: #F00000;
+	padding-left: 0.5rem;
+}
+#deviceUpdate{
+	border: 0.1rem solid #B0B0B0 ;
+	border-radius: 0.5rem;
+	background-color: #E8E8E8 ;
+	text-align: center;
+}
+
+
+
+
+#deviceAdd{
+	border: 0.1rem solid #B0B0B0 ;
+	border-radius: 0.5rem;
+	margin-top: 0.5rem;
+	background-color: #E8E8E8 ;
+	text-align: center;
+}
+#deviceAdd div {
+	width: 100%;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    overflow: hidden;
+}
+#deviceAdd b{
+	color:#5848ea;
+}
+#deviceAdd div input{
+	border: 0.1rem solid #C8C8C8 ;
+	height: 1.6rem;
+}
+#deviceAdd div input:hover{
+	border: 0.1rem solid red;
+}
+
+
+#xgcz{
+	margin-bottom:0.5rem;
+	width: 98%;
+	padding: 0.3rem 0 0.3rem 0;
+	background-color: #00CC33;
+	color: #F00000;
+	padding-left: 0.5rem;
+}
+#xgdiv{
+	text-align: center;
+}
+
+
+
+#ts{
+	border: 0.1rem solid #B0B0B0 ;
+	border-radius: 0.5rem;
+	margin-top: 0.5rem;
+	background-color: #E8E8E8 ;
+	text-align: center;
+}
+
+
+#back{
+	margin-top: 0.3rem;
+	width: 100%;
+	padding: 0.3rem 0 0.3rem 0;
+	background-color: #00CC33;
+	color: #F00000;
+	padding-left: 0.5rem;
+}
+#backdiv{
+	margin-top: 1rem;
+}
+
+#aaa{
+	color:red;
+}

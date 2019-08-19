@@ -1,0 +1,622 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wx.dao.ServletDao">
+	 <delete id="deleteTeamCardByCard">
+		delete from team_card where unit_id = #{unit_id} and card_iid = #{iid}
+	 </delete>
+	  <delete id="deleteKeyBoxCardByCard">
+		delete from keybox_card where unit_id = #{unit_id} and card_iid = #{card_iid}
+	 </delete>
+	 <delete id="deleteTeamCardByCards">
+		delete from team_card where unit_id = #{unit_id} and card_iid in
+		<foreach collection="list" item="item" index="index"
+            open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+	 </delete>
+	 <delete id="deleteTeamCardByTeams">
+		delete from team_card where unit_id=#{unit_id} and card_iid = #{card_iid} and team_id in
+		<foreach collection="list" item="item" index="index"
+            open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+	 </delete>
+	 <delete id="deleteKeyBoxCardByCards">
+		delete from keybox_card where unit_id = #{unit_id} and card_iid in
+		<foreach collection="list" item="item" index="index"
+            open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+	 </delete>
+	 <delete id="deleteKeyBoxCardByKeyBoxs">
+		delete from keybox_card where unit_id=#{unit_id} and card_iid = #{card_iid} and keybox_id in
+		<foreach collection="list" item="item" index="index"
+            open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+	 </delete>
+	 <delete id="deleteKeyBoxCardByKeyBox">
+		delete from keybox_card where unit_id=#{unit_id} and keybox_id=#{keybox_id}
+	 </delete>
+	 <insert id="addTeamCard">
+		insert into team_card (unit_id,team_id,card_iid) 
+		values 
+		<foreach collection="list" item="item" index="index" separator=","> 
+        	(#{unit_id},#{item},#{iid}) 
+    	</foreach>
+	 </insert>
+	 <insert id="addKeyBoxCard">
+		insert into keybox_card (unit_id,keybox_id,card_iid) 
+		values 
+		<foreach collection="list" item="item" index="index" separator=","> 
+        	(#{unit_id},#{item},#{iid}) 
+    	</foreach>
+	 </insert>
+	 <insert id="addKeyBoxCard2">
+		insert into keybox_card (unit_id,keybox_id,card_iid) 
+		values 
+		<foreach collection="list" item="item" index="index" separator=","> 
+        	(#{unit_id},#{maxc},#{item.iid}) 
+    	</foreach>
+	 </insert>
+
+
+	 <delete id="deleteCards">
+		delete from card where keybox_id = #{keybox_id} and iid in
+		<foreach collection="iids" item="iid" index="index"
+            open="(" close=")" separator=",">
+            #{iid}
+        </foreach>
+	 </delete>
+	 <select id="findCard" resultType="Card">
+		select * from card where keybox_id = #{keybox_id} 
+	 </select>
+	 <select id="findIid" resultType="java.lang.Integer">
+		select iid from card where keybox_id = #{keybox_id} 
+	 </select>
+	 <update id="changeCard">
+		update card set card_number = #{card_number} where keybox_id = #{keybox_id} and  card_number = #{change_number} 
+	 </update>
+	 <insert id="addCard">
+		insert into card (keybox_id,card_number,unit_id,iid,team_id) values (#{keybox_id},#{card_number},#{unit_id},#{iid},#{team_id})
+	 </insert>
+	 <select id="seachCard" resultType="Card">
+		select id,card_number,iid from card where keybox_id = #{keybox_id} and card_number=#{card_number}
+	 </select>
+	 <select id="findCardByIid" resultType="java.lang.String">
+		select card_number from card where keybox_id = #{keybox_id} and iid=#{iid}
+	 </select>
+	 
+	 
+	 <select id="getMysqlDir" resultType="java.lang.String">
+		select @@basedir as basePath from dual
+	 </select>	 
+	 
+	 
+	 <update id="setConfigTime">
+		update config set intervalDay = #{day},setTime = #{millis}
+	 </update>
+	 <update id="setConfigPort">
+		update config set receivePort = #{port}
+	 </update>
+	 <select id="findConfig" resultType="Config">
+		select setTime,intervalDay,receivePort from config;
+	 </select>
+	 
+	 
+	 <select id="getAllLogs" resultType="Logs">
+		select * from logs where unit_id in (select unit_number as unit_id from unit) and log_style = #{style} order by id desc
+	 </select>
+	 <select id="getLogs" resultType="Logs">
+		select * from logs where unit_id in (select unit_number as unit_id from unit) and log_style = #{style} order by id desc limit #{start},20
+	 </select>
+	 <select id="getLogsByKeybox_id" resultType="Logs">
+		select * from logs where Keybox_id = #{keybox_id} and log_style = #{style} order by id desc limit #{start},20
+	 </select>
+	 <select id="getLogsByTeam_id" resultType="Logs">
+		select * from logs where unit_id=#{unit_id} and Team_id = #{team_id} and log_style = #{style} order by id desc limit #{start},20;
+	 </select>
+	 <select id="getLogsByKeyss_id" resultType="Logs">
+		select * from logs where Keybox_id = #{keybox_id} and keyss_id = #{keyss_id} and log_style = #{style} order by id desc limit #{start},20;
+	 </select>
+	  <select id="getAllLogsByKeybox_id" resultType="Logs">
+		select * from logs where Keybox_id = #{keybox_id} and log_style = #{style} order by id desc
+	 </select>
+	 <select id="getAllLogsByTeam_id" resultType="Logs">
+		select * from logs where unit_id=#{unit_id} and Team_id = #{team_id} and log_style = #{style} order by id desc
+	 </select>
+	 <select id="getAllLogsByKeyss_id" resultType="Logs">
+		select * from logs where Keybox_id = #{keybox_id} and keyss_id = #{keyss_id} and log_style = #{style} order by id desc
+	 </select>
+	 <insert id="addOpenKeyLog" parameterType="Logs">
+		insert into logs (keyss_id,users_id,users_name,manager_id,manager_name,approve_time,style,unit_name,team_name,keybox_name,keyss_name,unit_id,team_id,keybox_id) 
+		values (#{keyss_id},#{users_id},#{users_name},#{manager_id},#{manager_name},#{approve_time},#{style},#{unit_name},#{team_name},#{keybox_name},#{keyss_name},#{unit_id},#{team_id},#{keybox_id})
+	 </insert>
+	 
+	 <insert id="addLogs" parameterType="Logs" >
+        insert into logs(keyss_id,users_id,users_name,manager_id,manager_name,application_time,approve_time,get_time,style,unit_name,team_name,keybox_name,keyss_name,unit_id,team_id,keybox_id,card_id,log_style)
+        values (#{keyss_id},#{users_id},#{users_name},#{manager_id},#{manager_name},#{application_time},#{approve_time},#{get_time},#{style},#{unit_name},#{team_name},#{keybox_name},#{keyss_name},#{unit_id},#{team_id},#{keybox_id},#{card_id},#{log_style})
+    </insert>
+	 
+	 
+	 <select id="findName" resultType="Name">
+		select k.name as keybox_name,t.name as team_name,u.name as unit_name from keybox k,team t,unit u where k.maxc = #{keybox_id} and t.unit_id = k.unit_id and t.iid = k.team_id and u.unit_number = t.unit_id;
+	 </select>
+	 
+	 
+	 <update id="changeKeyById">
+		update keyss
+		<set>
+	        <if test="name != null and name != ''">
+	            name = #{name},
+	        </if>
+	         <if test="card_id != null and card_id != ''">
+	            card_id = #{card_id},
+	        </if>
+    	</set>
+    	where keybox_id = #{keybox_id} and iid = #{iid}; 
+	 </update>
+	 <update id="changeKeyUseringById">
+		update keyss set usering = #{usering} where id=#{id};
+	 </update>
+	 <delete id="deleteKeyByIds">
+		delete from Keyss where keybox_id = #{keybox_id} and iid in
+		<foreach collection="iids" item="iid" index="index"
+            open="(" close=")" separator=",">
+            #{iid}
+        </foreach>
+	 </delete>
+	 
+	 <select id="findKey" resultType="Key">
+		select id,iid,name,keyss_state,card_id,usering,keybox_id from keyss where keybox_id=#{keybox_id} order by iid limit #{start},20;
+	 </select>
+	 <select id="findKeyByNameOrIid" resultType="Key">
+		select id,iid,name,keyss_state,card_id,usering,keybox_id from keyss where keybox_id=#{keybox_id}
+			<if test="name != null and name != ''">
+	       		and name = #{name}
+	    	</if>
+	    	<if test="iid != -1">
+	        	and iid = #{iid}
+	    	</if>
+	    	<if test="card_id != null and card_id !=''">
+	        	and card_id = #{card_id}
+	    	</if>
+	 </select>
+	 <select id="findKeyNameByIid" resultType="java.lang.String">
+		select name from keyss where keybox_id=#{keybox_id} and iid=#{iid}
+	 </select>
+	 <insert id="addKey" useGeneratedKeys="true"  keyProperty="id" parameterType="Key">
+		insert into Keyss (name,iid,keybox_id,unit_id,team_id,card_id) values (#{name},#{iid},#{keybox_id},#{unit_id},#{team_id},#{card_id})
+	 </insert>
+	 <insert id="addAllkey">
+		insert into Keyss (name,iid,keybox_id,unit_id,team_id,card_id,usering) 
+		values 
+		<foreach collection="arr" item="item" index="index" separator=","> 
+			<if test="index gte 29">
+                ('${item}',#{item},#{keybox_id},#{unit_id},#{team_id},concat(#{keybox_id},#{item}),"启用")
+            </if>
+            <if test="index lt 29">
+                ('${item}',#{item},#{keybox_id},#{unit_id},#{team_id},concat(#{keybox_id},#{item}),"禁用")
+            </if>
+		</foreach>
+	 </insert>
+	 <select id="findKeys" resultType="Key">
+		select id,iid,name,card_id,usering,keybox_id from keyss where keybox_id=#{keybox_id};
+	 </select>
+	  <select id="sendAllKey" resultType="Key">
+		select id,iid,name,card_id,usering,keybox_id from keyss where keybox_id=#{keybox_id} and usering="禁用";
+	 </select>
+	 <select id="findKeysByMaxc" resultType="Key">
+		select id,iid,keyss_state from keyss where keybox_id=#{keybox_id} order by iid;
+	 </select>
+	 <select id="findKeyCard_id" resultType="java.lang.String">
+		select card_id from keyss where card_id = #{card_id};
+	 </select>
+	  <update id="updateKeyStateByIid">
+		update Keyss set keyss_state = #{keyss_state} where keybox_id = #{keybox_id} and iid=#{iid}
+	 </update>
+	  <update id="changekeysState">
+		 <foreach separator=";" index="index" item="item" collection="list" close="" open=""> 
+	  		update Keyss set keyss_state = #{item.keyss_state,jdbcType=INTEGER}
+	   		where id = #{item.id,jdbcType=INTEGER}
+	  	</foreach>
+	 </update>
+	 
+	 
+	 <select id="findAllKeyBox" resultType="KeyBox1">
+		select id,unit_id,name,team_id,maxc,fault_number,onlines from KeyBox
+	 </select>
+	 <select id="findKeyBoxById" resultType="KeyBoxInfo">
+		select * from KeyBox where maxc = #{maxc} 
+	 </select>
+	 <update id="changeKeyBoxById">
+		update KeyBox set name = #{name} where id= #{id};
+	 </update>
+	 <select id="findKeyBoxByName" resultType="KeyBox">
+		select id,name,maxc,onlines from KeyBox where unit_id=#{unit_id} and team_id=#{team_id} and name=#{name}
+	 </select>
+	 <delete id="deleteKeyBoxByIds">
+		delete from KeyBox where maxc in
+		<foreach collection="maxcs" item="maxc" index="index"
+            open="(" close=")" separator=",">
+            #{maxc}
+        </foreach>
+	 </delete>
+	 <insert id="addKeyBox" useGeneratedKeys="true"  keyProperty="id" parameterType="KeyBox1">
+		insert into KeyBox (name,team_id,maxc,unit_id) values (#{name},#{team_id},#{maxc},#{unit_id})
+	 </insert>
+	 <select id="findKeyBoxs" resultType="KeyBox">
+		select id,name,maxc from KeyBox where unit_id=#{unit_id} and team_id=#{team_id};
+	 </select>
+	 <select id="findMaxc" resultType="java.lang.String">
+		select maxc from KeyBox where maxc=#{maxc};
+	 </select>
+	 <select id="findKeyBox" resultType="KeyBox">
+		select id,name,maxc,onlines from KeyBox where unit_id=#{unit_id} and team_id=#{team_id} limit #{start},20;
+	 </select>
+	 <select id="findAllkeybox_number" resultType="java.lang.String">
+		select maxc from KeyBox where unit_id = #{unit_id} and team_id in
+		<foreach collection="list" item="item" index="index"
+            open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+	 </select>
+	 <update id="updateKeyBox" parameterType="KeyBoxInfo">
+		update KeyBox set 
+		ip = #{ip},ip_mask = #{ip_mask},ip_gatewey = #{ip_gatewey},password = #{password},cent1_ip = #{cent1_ip},cent1_sourcePort = #{cent1_sourcePort},
+		cent1_destPort = #{cent1_destPort},cent2_ip = #{cent2_ip},cent2_sourcePort = #{cent2_sourcePort},cent2_destPort = #{cent2_destPort},cent3_ip = #{cent3_ip},
+		cent3_sourcePort = #{cent3_sourcePort},cent3_destPort = #{cent3_destPort},cent4_ip = #{cent4_ip},cent4_sourcePort = #{cent4_sourcePort},cent4_destPort = #{cent4_destPort}
+		where maxc = #{maxc}
+	 </update>
+	 <update id="updateKeyBoxFaulById">
+		update KeyBox set fault_number = #{fault_number} where id = #{id}
+	 </update>
+	 <update id="updateKeyBoxOnlineById">
+		update KeyBox set onlines = #{onlines} where id = #{id}
+	 </update>
+	 <select id="findKeybox_idByCardIid" resultType="java.lang.String">
+		select keybox_id from keybox_card where unit_id=#{unit_id} and card_iid=#{iid}
+	 </select>
+	 <select id="findKeybox_idByCardIids" resultType="java.lang.String">
+		select keybox_id from keybox_card where unit_id=#{unit_id} and card_iid in
+		<foreach collection="list" item="item" index="index"
+            open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+	 </select>
+	 <select id="findKeyboxCardByCardIids" resultType="Card">
+		select keybox_id,card_iid as iid,card_number from keybox_card k,unit_card u where k.unit_id=#{unit_id} and k.card_iid in
+		<foreach collection="list" item="item" index="index"
+            open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        and u.unit_id = k.unit_id and u.iid = k.card_iid
+	 </select>
+	 
+	 
+	 <select id="findTeamManagerByName" resultType="TeamManager">
+		select id,iid,name,password from team_manager where unit_id=#{unit_id} and team_id=#{team_id} and name = #{name};
+	 </select>
+	 <select id="findAllTeamManagerIid" resultType="java.lang.Integer">
+		select iid from team_manager where unit_id=#{unit_id} and team_id=#{team_id};
+	 </select>
+	 <update id="changeTeamManager">
+		update team_manager
+		<set>
+	        <if test="name != null and name != ''">
+	            name = #{name},
+	        </if>
+	        <if test="password != null and password != ''">
+	            password = #{password},
+	        </if>
+    	</set>
+    	where id = #{id};
+	  </update>
+	  <delete id="deleteTeamManager">
+		delete from team_manager where unit_id=#{unit_id} and team_id = #{team_id} and iid in
+		<foreach collection="iids" item="iid" index="index"
+            open="(" close=")" separator=",">
+            #{iid}
+        </foreach>
+	 </delete>
+	 <insert id="addTeamManager" useGeneratedKeys="true"  keyProperty="id" parameterType="TeamManager">
+		insert into team_manager (iid,team_id,name,password,unit_id) values (#{iid},#{team_id},#{name},#{password},#{unit_id})
+	 </insert>
+	 <select id="findTeamManager" resultType="TeamManager">
+		select id,iid,name,password from team_manager where unit_id=#{unit_id} and team_id=#{team_id} order by iid limit #{start},20;
+	 </select>
+	 <select id="findCardByTeam" resultType="UnitCard">
+	 	select iid,card_number from unit_card where iid in (select card_iid from team_card where unit_id = #{unit_id} and team_id = #{team_id})
+	 </select>
+	 <update id="changeTeam">
+		update team_manager set password = #{password},remember = 0 where id = id;
+	 </update>
+	 <select id="findTeamManagerNameByIid" resultType="java.lang.String">
+		select name from team_manager where unit_id=#{unit_id} and team_id=#{team_id} and iid=#{iid};
+	 </select>
+	 
+	 <select id="findUserNamebyIid" resultType="java.lang.String">
+		select name from users where unit_id=#{unit_id} and team_id=#{team_id} and iid = #{iid};
+	 </select>
+	 <select id="findUsersByName" resultType="Users">
+		select name,iid,id from users where unit_id=#{unit_id} and team_id=#{team_id} and name=#{name};
+	 </select>
+	 <update id="changeUser">
+		update users set name = #{name} where id= #{id};
+	 </update>
+	   <delete id="deleteUsers">
+		delete from users where unit_id=#{unit_id} and team_id = #{team_id} and iid in
+		<foreach collection="iids" item="iid" index="index"
+            open="(" close=")" separator=",">
+            #{iid}
+        </foreach>
+	  </delete>
+	  <insert id="addUsers">
+		insert into users (iid,team_id,name,unit_id) values (#{iid},#{team_id},#{name},#{unit_id})
+	  </insert>
+	  <select id="findAllUser" resultType="Users">
+		select iid,name,id from users where unit_id=#{unit_id} and team_id = #{team_id}
+	  </select>
+	  <select id="findUser" resultType="Users">
+		select id,iid,name from users where unit_id=#{unit_id} and team_id = #{team_id} order by iid limit #{start},20
+	  </select>
+	 
+	 
+	 <update id="changeTeamById">
+		update Team set name = #{name} where id= #{id};
+	 </update>
+	 <delete id="deleteTeamByIds">
+		delete from Team where unit_id=#{unit_id} and iid in
+		<foreach collection="iids" item="iid" index="index"
+            open="(" close=")" separator=",">
+            #{iid}
+        </foreach>
+        ;
+        delete from team_card where unit_id=#{unit_id} and team_id in
+		<foreach collection="iids" item="iid" index="index"
+            open="(" close=")" separator=",">
+            #{iid}
+        </foreach>
+        ;
+         delete from keybox where unit_id=#{unit_id} and team_id in
+		<foreach collection="iids" item="iid" index="index"
+            open="(" close=")" separator=",">
+            #{iid}
+        </foreach>
+        ;
+         delete from team_manager where unit_id=#{unit_id} and team_id in
+		<foreach collection="iids" item="iid" index="index"
+            open="(" close=")" separator=",">
+            #{iid}
+        </foreach>
+        ;
+        delete from users where unit_id=#{unit_id} and team_id in
+		<foreach collection="iids" item="iid" index="index"
+            open="(" close=")" separator=",">
+            #{iid}
+        </foreach>
+        ;
+         update unit_card set team_id=-1,auth_id=-1,auth_name='未设置' where unit_id=#{unit_id} and team_id in
+		<foreach collection="iids" item="iid" index="index"
+            open="(" close=")" separator=",">
+            #{iid}
+        </foreach>
+        ;
+         delete from unit_manager_auth where unit_id=#{unit_id} and team_id in
+		<foreach collection="iids" item="iid" index="index"
+            open="(" close=")" separator=",">
+            #{iid}
+        </foreach>
+        ;
+	 </delete>
+	 <insert id="addTeam" useGeneratedKeys="true"  keyProperty="id" parameterType="Team">
+		insert into team (name,unit_id,iid) values (#{name},#{unit_id},#{iid})
+	 </insert>
+	 <select id="findTeamCount" resultType="java.lang.Integer">
+		select count(id) from Team where unit_id=#{unit_id};
+	 </select>
+	 <select id="findTeamByNameOrIid" resultType="Team">
+		select id,name,iid from Team where unit_id=#{unit_id} and (name=#{name} or iid = #{iid});
+	 </select>
+	 <select id="findTeamByName" resultType="Team">
+		select id,name,iid from Team where unit_id=#{unit_id} and name=#{name};
+	 </select>
+	 <select id="findTeam" resultType="Team">
+		select id,name,iid from Team where unit_id=#{unit_id} order by iid limit #{start},20;
+	 </select>
+	
+	
+	 <insert id="addUnitManagerAuth">
+		insert into unit_manager_auth (unit_manager_id,team_id,unit_id) 
+		values 
+		<foreach collection="list" item="item" index="index" separator=","> 
+        	(#{unit_manager_id},#{item},#{unit_id}) 
+    	</foreach>
+	 </insert>
+	 <delete id="deleteUnitManagerAuth">
+		delete from unit_manager_auth where unit_id=#{unit_id} and unit_manager_id = #{unit_manager_id} and team_id in
+		<foreach collection="list" item="item" index="index"
+            open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+	 </delete>
+	 <delete id="deleteUnitManagerAuth2">
+		delete from unit_manager_auth where unit_id=#{unit_id} and unit_manager_id in
+		<foreach collection="iids" item="iid" index="index"
+            open="(" close=")" separator=",">
+            #{iid}
+        </foreach>
+	 </delete>
+	 <select id="findAllUnitManagerAuth" resultType="java.lang.Integer">
+		select team_id from unit_manager_auth where unit_id = #{unit_id} and unit_manager_id=#{unit_manager_id};
+	 </select>
+	 
+	 <update id="deleteUnitCardsAuth">
+		update unit_card set team_id=-1,auth_id=-1,auth_name='未设置' where unit_id=#{unit_id} and iid in
+		<foreach collection="iids" item="iid" index="index"
+            open="(" close=")" separator=",">
+            #{iid}
+        </foreach>
+	 </update>
+	 
+	 <update id="changeUnit">
+		update unit_manager set password = #{password},remember = 0 where id=#{id};
+	 </update>
+	 <select id="findUnitManagerByName" resultType="UnitManager">
+		select id,iid,name,password from unit_manager where unit_id=#{unit_id} and name = #{name};
+	 </select>
+	 <update id="changeUnitManager">
+		update unit_manager
+		<set>
+	        <if test="name != null and name != ''">
+	            name = #{name},
+	        </if>
+	        <if test="password != null and password != ''">
+	            password = #{password},
+	        </if>
+    	</set>
+    	where id = #{id};
+	 </update>
+	 <delete id="deleteUnitManager">
+		delete from unit_manager where unit_id=#{unit_id} and iid in
+		<foreach collection="iids" item="iid" index="index"
+            open="(" close=")" separator=",">
+            #{iid}
+        </foreach>
+	</delete>
+	<insert id="addUnitManager" useGeneratedKeys="true"  keyProperty="id" parameterType="UnitManager">
+		insert into unit_manager (iid,unit_id,name,password) values (#{iid},#{unit_id},#{name},#{password})
+	</insert>
+	<select id="findUnitManager" resultType="UnitManager">
+		select id,iid,name,password from unit_manager where unit_id=#{unit_id} order by iid limit #{start},20;
+	</select>
+	<select id="findUnitManagerCount" resultType="java.lang.Integer">
+		select count(iid) from unit_manager where unit_id=#{unit_id};
+	</select>
+	
+	
+	<select id="findAllManager" resultType="Manager">
+		select id,name,iid,-1 as style from unit_manager where unit_id = #{unit_id} union all select id,name,iid,team_id as style from team_manager where unit_id = #{unit_id}
+	</select>
+	<select id="findAllManagerHashCard" resultType="java.lang.String">
+		select auth_name from unit_card where unit_id = #{unit_id} and auth_id>-1
+	</select>
+	<select id="findUnitManagerByNamaOrIid" resultType="Manager">
+		select name,iid from unit_manager where unit_id = #{unit_id} and (name=#{name} or iid=#{iid}) union all select name,iid from team_manager where unit_id = #{unit_id} and name=#{name}
+	</select>
+	<select id="findManagerByNama" resultType="Manager">
+		select name,iid from unit_manager where unit_id = #{unit_id} and name = #{name} union all select name,iid from team_manager where unit_id = #{unit_id} and name = #{name}
+	</select>
+	<select id="findUnitManagerAuthByName" resultType="java.lang.Integer">
+		select team_id from unit_manager_auth where unit_manager_id in (select iid from unit_manager where unit_id=#{unit_id} and name=#{managername})
+	</select>
+	
+	
+	<delete id="deleteUnitByIds">
+		delete from unit where unit_number in
+		<foreach collection="unit_numbers" item="unit_number" index="index"
+            open="(" close=")" separator=",">
+            #{unit_number}
+        </foreach>
+	</delete>
+	<insert id="addUnit" useGeneratedKeys="true"  keyProperty="id" parameterType="Unit">
+		insert into unit (name,unit_number) values (#{name},#{unit_number})
+	</insert>
+	<select id="findUnitByName" resultType="Unit">
+		select id,name,unit_number from unit where name=#{name};
+	</select>
+	<select id="findUnit" resultType="Unit">
+		select id,name,unit_number from unit
+	</select>
+	<update id="changeUnitById">
+		update unit set name = #{name} where id= #{id};
+	</update>
+	
+	
+	<select id="getUnitPassword" resultType="UnitManager">
+		select name,id,password,remember,iid from unit_manager where name = #{name};
+	</select>
+	<update id="updataUnitManager">
+		update unit_manager set remember = #{remember} where id = #{id};
+	</update>
+	<select id="findUnitManagerNameByIid" resultType="java.lang.String">
+		select name from unit_manager where unit_id=#{unit_id} and iid=#{iid};
+	 </select>
+	
+	
+	<select id="getTeamPassword" resultType="TeamManager">
+		select name,id,password,remember,iid from team_manager where name = #{name};
+	</select>
+	<update id="updataTeamManager">
+		update team_manager set remember = #{remember} where id = #{id};
+	</update>
+	<select id="validAuth" resultType="java.lang.String">
+		select name from team_manager where unit_id=#{unit_id} and team_id=#{team_id} and name = #{managername};
+	</select>
+	
+	
+	<update id="updataLevel">
+		update config set remember = #{remember} where  id = #{id};
+	</update>
+	<update id="changeLevel">
+		update config set password = #{password},remember = 0 where name = #{name};
+	</update>
+	<select id="findLevel" resultType="Config">
+		select id,name,password,remember from config where name = #{name};
+	</select>
+	
+	
+	<select id="findUnitCardByManager" resultType="java.lang.String">
+		select iid from unit_card where unit_id = #{unit_id} and team_id=#{team_id} and auth_id in
+		<foreach collection="iids" item="iid" index="index"
+            open="(" close=")" separator=",">
+            #{iid}
+        </foreach>
+	</select>
+	<select id="findUnitCardByManager_id" resultType="UnitCard">
+		select iid,card_number from unit_card where unit_id=#{unit_id} and auth_id = #{auth_id} and team_id = #{team_id}
+	</select>
+	<update id="changeUnitCard">
+		update unit_card set card_number = #{card_number} where unit_id = #{unit_id} and card_number = #{change_number}
+	</update>
+	<select id="findCardByNumber" resultType="UnitCard">
+		select id,card_number,iid from unit_card where unit_id=#{unit_id} and card_number = #{card_number} union all select id,card_number,iid from card where unit_id=#{unit_id} and card_number = #{card_number};
+	</select>
+	<select id="findCardByNumberOrIid" resultType="UnitCard">
+		select id,card_number from unit_card where unit_id=#{unit_id} and (card_number = #{card_number} or iid = #{iid})  union all select id,card_number from card where unit_id=#{unit_id} and card_number = #{card_number};
+	</select>
+	<select id="findUnitCardByNumber" resultType="UnitCard">
+		select id,auth_id,card_number,auth_name,iid from unit_card where unit_id=#{unit_id} and card_number = #{card_number};
+	</select>
+	<select id="findUnitCard" resultType="UnitCard">
+		select id,auth_id,card_number,auth_name,iid from unit_card where unit_id=#{unit_id} order by iid limit #{start},20;
+	</select>
+	<select id="findAllUnitCardCount" resultType="java.lang.Integer">
+		select count(id) from unit_card where unit_id=#{unit_id};
+	</select>
+	<insert id="addUnitCard">
+		insert into unit_card (card_number,unit_id,iid) values (#{card_number},#{unit_id},#{iid})
+	</insert>
+	<delete id="deleteUnitCards">
+		delete from unit_card where unit_id=#{unit_id} and iid in
+		<foreach collection="iids" item="iid" index="index"
+            open="(" close=")" separator=",">
+            #{iid}
+        </foreach>
+	</delete>
+	<update id="changeAuth">
+		update unit_card set auth_id = #{auth_id},auth_name = #{auth_name},team_id=#{team_id} where iid = #{iid} and unit_id = #{unit_id};
+	</update>
+	
+	<select id="copyData">
+		select name,unit_number from unit into outfile'C:/lock/copyData/unit.sql';
+		select iid,unit_id,name from team into outfile'C:/lock/copyData/team.sql';
+		select unit_id,team_id,name,maxc,fault_number from keybox into outfile'C:/lock/copyData/keybox.sql';
+		select iid,keybox_id,name,unit_id,team_id,keyss_state,card_id from keyss into outfile'C:/lock/copyData/keyss.sql';
+		select iid,unit_id,openId,name,password,remember from unit_manager into outfile'C:/lock/copyData/unit_manager.sql';
+		select unit_id,unit_manager_id,team_id from unit_manager_auth into outfile'C:/lock/copyData/unit_manager_auth.sql';
+		select iid,team_id,unit_id,openId,name,password,remember from team_manager into outfile'C:/lock/copyData/team_manager.sql';
+		select iid,team_id,unit_id,name from users into outfile'C:/lock/copyData/users.sql';
+	</select>
+</mapper>
